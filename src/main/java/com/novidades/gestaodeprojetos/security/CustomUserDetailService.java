@@ -24,7 +24,7 @@ public class CustomUserDetailService implements UserDetailsService {
         return usuario;
     }
 
-    public UserDetails obterUsuarioPorId(Long id) {
+    public Usuario obterUsuarioPorId(Long id) {
         return usuarioService.obterPorId(id).get();
     }
 
