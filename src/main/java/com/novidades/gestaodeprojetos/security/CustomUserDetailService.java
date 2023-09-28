@@ -3,6 +3,7 @@ package com.novidades.gestaodeprojetos.security;
 import java.util.Optional;
 import java.util.function.Supplier;
 
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import com.novidades.gestaodeprojetos.model.Usuario;
 import com.novidades.gestaodeprojetos.service.UsuarioService;
+import com.novidades.gestaodeprojetos.shared.UsuarioDTO;
 
 @Service
 public class CustomUserDetailService implements UserDetailsService {
@@ -20,12 +22,18 @@ public class CustomUserDetailService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String email) {
-        Usuario usuario = getUser(() -> usuarioService.obterPorEmail(email));
+        Optional<UsuarioDTO> usuarioDTO = usuarioService.obterPorEmail(email);
+
+        Usuario usuarioConvertido = new ModelMapper().map(usuarioDTO, Usuario.class);
+
+        Usuario usuario = getUser(() -> Optional.of(usuarioConvertido));
         return usuario;
     }
 
     public Usuario obterUsuarioPorId(Long id) {
-        return usuarioService.obterPorId(id).get();
+        UsuarioDTO usuarioDTO = usuarioService.obterPorId(id).get();
+        Usuario usuario = new ModelMapper().map(usuarioDTO, Usuario.class);
+        return usuario;
     }
 
     private Usuario getUser(Supplier<Optional<Usuario>> supplier) {
