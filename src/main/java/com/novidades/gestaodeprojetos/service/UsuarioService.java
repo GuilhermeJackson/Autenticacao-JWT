@@ -1,24 +1,39 @@
 package com.novidades.gestaodeprojetos.service;
 
+import java.util.Collections;
 import java.util.InputMismatchException;
 import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.novidades.gestaodeprojetos.model.Usuario;
 import com.novidades.gestaodeprojetos.repository.UsuarioRepository;
+import com.novidades.gestaodeprojetos.security.JWTService;
+import com.novidades.gestaodeprojetos.view.usuario.LoginResponse;
 
 @Service
 public class UsuarioService {
+
+    private static final String headerPrefix = "Bearer ";
 
     @Autowired
     private UsuarioRepository usuarioRepository;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private JWTService jwtService;
+
+    @Autowired
+    private AuthenticationManager authenticationManager;
 
     public List<Usuario> obterTodos() {
         return usuarioRepository.findAll();
@@ -35,13 +50,28 @@ public class UsuarioService {
     public Usuario adicionar(Usuario usuario) {
         usuario.setId(null);
 
-        if(obterPorEmail(usuario.getEmail()).isPresent()) {
-            throw new InputMismatchException("Já existe um usuário cadastrado com o e-mail: '" + usuario.getEmail() +"'");
+        if (obterPorEmail(usuario.getEmail()).isPresent()) {
+            throw new InputMismatchException(
+                    "Já existe um usuário cadastrado com o e-mail: '" + usuario.getEmail() + "'");
         }
 
         String senhaCriptografada = passwordEncoder.encode(usuario.getSenha());
         usuario.setSenha(senhaCriptografada);
         usuarioRepository.save(usuario);
         return usuario;
+    }
+
+    //
+    public LoginResponse logar(String email, String senha) {
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(email, senha, Collections.emptyList()));
+
+        // Spring Security recebe autenticação valida
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        String token = headerPrefix + jwtService.gerarToken(authentication);
+        Usuario usuario = usuarioRepository.findByEmail(email).get();
+
+        return new LoginResponse(token, usuario);
     }
 }
