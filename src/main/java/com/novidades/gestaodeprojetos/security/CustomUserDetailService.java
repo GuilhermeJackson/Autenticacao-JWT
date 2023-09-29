@@ -3,6 +3,8 @@ package com.novidades.gestaodeprojetos.security;
 import java.util.Optional;
 import java.util.function.Supplier;
 
+import javax.transaction.Transactional;
+
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -20,6 +22,7 @@ public class CustomUserDetailService implements UserDetailsService {
     @Autowired
     private UsuarioService usuarioService;
 
+    @Transactional
     @Override
     public UserDetails loadUserByUsername(String email) {
         Optional<UsuarioDTO> usuarioDTO = usuarioService.obterPorEmail(email);
@@ -30,6 +33,7 @@ public class CustomUserDetailService implements UserDetailsService {
         return usuario;
     }
 
+     @Transactional
     public Usuario obterUsuarioPorId(Long id) {
         UsuarioDTO usuarioDTO = usuarioService.obterPorId(id).get();
         Usuario usuario = new ModelMapper().map(usuarioDTO, Usuario.class);

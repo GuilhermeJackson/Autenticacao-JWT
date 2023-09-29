@@ -2,7 +2,6 @@ package com.novidades.gestaodeprojetos.security;
 
 import java.io.IOException;
 import java.util.Collections;
-import java.util.InputMismatchException;
 import java.util.Optional;
 
 import javax.servlet.FilterChain;
@@ -21,7 +20,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import com.novidades.gestaodeprojetos.model.Usuario;
 
 @Component
-public class JWTAuthteticationFilter extends OncePerRequestFilter {
+public class JWTAuthenticationFilter extends OncePerRequestFilter {
 
     @Autowired
     private JWTService jwtService;
@@ -37,19 +36,21 @@ public class JWTAuthteticationFilter extends OncePerRequestFilter {
         String tokenDaRequisição = obterToken(request);
         Optional<Long> idUsuarioDoToken = jwtService.obterIdDoUsuario(tokenDaRequisição);
 
-        if (!idUsuarioDoToken.isPresent()) {
-            throw new InputMismatchException("Token inválido!");
+        if (idUsuarioDoToken.isPresent()) {
+
+            Usuario usuario = customUserDetailService.obterUsuarioPorId(idUsuarioDoToken.get());
+            UsernamePasswordAuthenticationToken autenticacao = new UsernamePasswordAuthenticationToken(usuario, null,
+                    Collections.emptyList());
+            autenticacao.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+            SecurityContextHolder.getContext().setAuthentication(autenticacao);
         }
-        Usuario usuario = customUserDetailService.obterUsuarioPorId(idUsuarioDoToken.get());
-        UsernamePasswordAuthenticationToken autenticacao = new UsernamePasswordAuthenticationToken(usuario, null,
-                Collections.emptyList());
-        autenticacao.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-        SecurityContextHolder.getContext().setAuthentication(autenticacao);
+        // Metodo padrão caso não exista id do usuário
+        filterChain.doFilter(request, response);
     }
 
     private String obterToken(HttpServletRequest request) {
         String token = request.getHeader("Authorization");
-        if (StringUtils.hasText(token)) {
+        if (!StringUtils.hasText(token)) {
             return null;
         }
         return token.substring(7, 0);
