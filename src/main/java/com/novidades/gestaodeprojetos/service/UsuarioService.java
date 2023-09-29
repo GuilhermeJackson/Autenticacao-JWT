@@ -54,22 +54,25 @@ public class UsuarioService {
 
     public Optional<UsuarioDTO> obterPorEmail(String email) {
         Optional<Usuario> usuario = usuarioRepository.findByEmail(email);
-        UsuarioDTO usuarioDTOConvertido = new ModelMapper().map(usuario.get(), UsuarioDTO.class);
-        return Optional.of(usuarioDTOConvertido);
+        if (!usuario.isEmpty()) {
+            UsuarioDTO usuarioDTOConvertido = new ModelMapper().map(usuario.get(), UsuarioDTO.class);
+            return Optional.of(usuarioDTOConvertido);
+        }
+        return Optional.empty();
     }
 
-    public UsuarioDTO adicionar(UsuarioDTO usuario) {
-        if (obterPorEmail(usuario.getEmail()).isPresent()) {
+    public UsuarioDTO adicionar(UsuarioDTO usuarioDTO) {
+        if (obterPorEmail(usuarioDTO.getEmail()).isPresent()) {
             throw new InputMismatchException(
-                    "Já existe um usuário cadastrado com o e-mail: '" + usuario.getEmail() + "'");
+                    "Já existe um usuário cadastrado com o e-mail: '" + usuarioDTO.getEmail() + "'");
         }
 
-        String senhaCriptografada = passwordEncoder.encode(usuario.getSenha());
-        usuario.setSenha(senhaCriptografada);
-        Usuario usuarioConvetido = new ModelMapper().map(usuario, Usuario.class);
+        String senhaCriptografada = passwordEncoder.encode(usuarioDTO.getSenha());
+        usuarioDTO.setSenha(senhaCriptografada);
+        Usuario usuarioConvetido = new ModelMapper().map(usuarioDTO, Usuario.class);
         usuarioConvetido.setId(null);
         usuarioRepository.save(usuarioConvetido);
-        return usuario;
+        return usuarioDTO;
     }
 
     //
