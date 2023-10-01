@@ -19,49 +19,54 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Autowired
-    private CustomUserDetailService customUserDetailService;
+    private CustomUserDetailService customUserDetailsService;
 
     @Autowired
-    private JWTAuthenticationFilter jwtAuthteticationFilter;
+    private JWTAuthenticationFilter jwtAuthenticationFilter;
 
-    @Bean
-    public JWTAuthenticationFilter authenticationFilter() {
-        return new JWTAuthenticationFilter();
-    }
-
+    // Usado para Criptografar a senha do usuário
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
+    // Metodo padrão para configuração do custom com o nosso metodo de codificar
+    // senha.
     @Override
     public void configure(AuthenticationManagerBuilder authenticationManagerBuilder) throws Exception {
         authenticationManagerBuilder
-                .userDetailsService(customUserDetailService)
+                .userDetailsService(customUserDetailsService)
                 .passwordEncoder(passwordEncoder());
     }
 
+    // Metodo padrão: Usadp para a autenticação no login.
     @Bean
     @Override
     public AuthenticationManager authenticationManagerBean() throws Exception {
         return super.authenticationManagerBean();
     }
 
+    // Metodo que tem a configuração global de acessos e permissoes por rotas.
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http.cors().and().csrf().disable()
+        http
+                .cors().and().csrf().disable()
                 .exceptionHandling()
                 .and()
                 .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .authorizeRequests()
-                .antMatchers(HttpMethod.POST, "/api/usuarios", "/api/usuarios/login")
-                .permitAll()
-                .anyRequest().authenticated(); // Outras resquisição além dessas deve ser autenticado
 
-        http.addFilterBefore(
-                jwtAuthteticationFilter,
-                UsernamePasswordAuthenticationFilter.class);
+                // Informar as rotas que não vão precisar de autenticação.
+
+                .antMatchers(HttpMethod.POST, "/api/usuarios", "/api/usuarios/login")
+                .permitAll() // informa que todos podem acessar, não precisa de autenticação.
+
+                .anyRequest()
+                .authenticated();// Digo que as demais requisições devem ser autenticadas.
+
+        // Antes de qualter requisição http deve usar o filtro jwtAuthenticationFilter.
+        http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
     }
 }

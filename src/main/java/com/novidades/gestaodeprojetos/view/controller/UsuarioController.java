@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -17,8 +16,6 @@ import com.novidades.gestaodeprojetos.shared.UsuarioDTO;
 import com.novidades.gestaodeprojetos.view.usuario.LoginRequest;
 import com.novidades.gestaodeprojetos.view.usuario.LoginResponse;
 
-@CrossOrigin("*") // Seta responsábilidade de acesso via Spring Security por validação de
-                  // autenticação
 @RestController
 @RequestMapping("/api/usuarios")
 public class UsuarioController {
@@ -37,7 +34,7 @@ public class UsuarioController {
     }
 
     @PostMapping
-    public UsuarioDTO adicionar (@RequestBody UsuarioDTO usuarioDTO) {
+    public UsuarioDTO adicionar(@RequestBody UsuarioDTO usuarioDTO) {
         return usuarioService.adicionar(usuarioDTO);
     }
 

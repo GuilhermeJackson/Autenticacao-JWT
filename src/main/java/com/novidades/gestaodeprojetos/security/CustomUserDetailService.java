@@ -33,7 +33,7 @@ public class CustomUserDetailService implements UserDetailsService {
         return usuario;
     }
 
-     @Transactional
+    @Transactional
     public Usuario obterUsuarioPorId(Long id) {
         UsuarioDTO usuarioDTO = usuarioService.obterPorId(id).get();
         Usuario usuario = new ModelMapper().map(usuarioDTO, Usuario.class);

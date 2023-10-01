@@ -54,11 +54,11 @@ public class UsuarioService {
 
     public Optional<UsuarioDTO> obterPorEmail(String email) {
         Optional<Usuario> usuario = usuarioRepository.findByEmail(email);
-        if (!usuario.isEmpty()) {
-            UsuarioDTO usuarioDTOConvertido = new ModelMapper().map(usuario.get(), UsuarioDTO.class);
-            return Optional.of(usuarioDTOConvertido);
+        if (usuario.isEmpty()) {
+            return Optional.empty();
         }
-        return Optional.empty();
+        UsuarioDTO usuarioDTOConvertido = new ModelMapper().map(usuario.get(), UsuarioDTO.class);
+        return Optional.of(usuarioDTOConvertido);
     }
 
     public UsuarioDTO adicionar(UsuarioDTO usuarioDTO) {
@@ -70,7 +70,6 @@ public class UsuarioService {
         String senhaCriptografada = passwordEncoder.encode(usuarioDTO.getSenha());
         usuarioDTO.setSenha(senhaCriptografada);
         Usuario usuarioConvetido = new ModelMapper().map(usuarioDTO, Usuario.class);
-        usuarioConvetido.setId(null);
         usuarioRepository.save(usuarioConvetido);
         return usuarioDTO;
     }

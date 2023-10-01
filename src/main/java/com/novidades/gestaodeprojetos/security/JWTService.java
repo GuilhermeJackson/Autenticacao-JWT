@@ -18,7 +18,7 @@ public class JWTService {
     private static final String chavePrivadaJWT = "secret_key";
 
     public String gerarToken(Authentication authentication) {
-        int tempoExpiracao = 900000;
+        int tempoExpiracao = 86400000;
         Date dataExpiracao = new Date(new Date().getTime() + tempoExpiracao);
 
         // Pega usuário atual da autenticação
@@ -38,8 +38,8 @@ public class JWTService {
         try {
             // Claims - objeto de autorização
             Claims claims = parse(token).getBody();
-            Optional<Long> idDoUsuario = Optional.ofNullable(Long.parseLong(claims.getSubject()));
-            return idDoUsuario;
+            Optional<Long> idUsuario = Optional.ofNullable(Long.parseLong(claims.getSubject()));
+            return idUsuario;
         } catch (Exception e) {
             return Optional.empty();
         }
