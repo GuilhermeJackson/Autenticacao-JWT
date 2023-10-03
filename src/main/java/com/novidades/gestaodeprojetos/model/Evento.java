@@ -10,6 +10,8 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import lombok.Data;
 
 @Entity
@@ -28,5 +30,6 @@ public class Evento {
 
     @ManyToOne
     @JoinColumn(name = "id_categoria")
+    @JsonManagedReference
     private Categoria categoria;
 }
