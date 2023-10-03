@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.novidades.gestaodeprojetos.model.MensagemEmail;
+import com.novidades.gestaodeprojetos.service.EmailService;
 import com.novidades.gestaodeprojetos.service.UsuarioService;
 import com.novidades.gestaodeprojetos.shared.UsuarioDTO;
 import com.novidades.gestaodeprojetos.view.usuario.LoginRequest;
@@ -22,6 +24,9 @@ public class UsuarioController {
 
     @Autowired
     private UsuarioService usuarioService;
+
+    @Autowired
+    private EmailService emailService;
 
     @GetMapping
     public List<UsuarioDTO> obterTodos() {
@@ -41,5 +46,17 @@ public class UsuarioController {
     @PostMapping("/login")
     public LoginResponse login(@RequestBody LoginRequest request) {
         return usuarioService.logar(request.getEmail(), request.getSenha());
+    }
+
+    @PostMapping("/email")
+    public String enviarEmail(@RequestBody MensagemEmail email) {
+
+        try {
+            emailService.enviar(email);
+            return "E-mail eviado para: " + email.getDestinatarios();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "Falha ao enviar e-mail";
+        }
     }
 }

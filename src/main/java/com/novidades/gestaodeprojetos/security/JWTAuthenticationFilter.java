@@ -53,6 +53,6 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
         if (!StringUtils.hasText(token)) {
             return null;
         }
-        return token.substring(7, 0);
+        return token.substring(7);
     }
 }
