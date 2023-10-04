@@ -30,14 +30,14 @@ public class CategoriaService {
     }
 
     @PostMapping
-    public Categoria adicionar(Categoria Categoria) {
-        return categoriaRepository.save(Categoria);
+    public Categoria adicionar(Categoria categoria) {
+        return categoriaRepository.save(categoria);
     }
 
     @PutMapping
-    public Categoria atualizar(Long id, Categoria Categoria) {
-        // categoria.setId(id);
-        return categoriaRepository.save(Categoria);
+    public Categoria atualizar(Long id, Categoria categoria) {
+        categoria.setId(id);
+        return categoriaRepository.save(categoria);
     }
 
     @DeleteMapping

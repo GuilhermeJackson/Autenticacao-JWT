@@ -28,6 +28,7 @@ public class EventoService {
     }
 
     public Evento atualizar(Long id, Evento evento) {
+        evento.setId(id);
         return eventoRepository.save(evento);
     }
 
